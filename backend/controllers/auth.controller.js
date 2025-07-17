@@ -1,4 +1,4 @@
-import admin, { auth, messaging } from 'firebase-admin'
+import admin from 'firebase-admin'
 import jwt from 'jsonwebtoken'
 
 const generateToken = (uid, role='user') => {
