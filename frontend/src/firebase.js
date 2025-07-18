@@ -1,6 +1,5 @@
-// src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,10 +10,17 @@ const firebaseConfig = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const app = initializeApp(firebaseConfig)
+const auth = getAuth(app)
 
-const googleProvider = new GoogleAuthProvider();
-const githubProvider = new GithubAuthProvider();
+const googleProvider = new GoogleAuthProvider()
+const githubProvider = new GithubAuthProvider()
 
-export { auth, googleProvider, githubProvider };
+// Track user auth state
+const checkAuth = (fn) => {
+    onAuthStateChanged(auth, (user) => {
+        fn(user)
+    })
+}
+
+export { auth, googleProvider, githubProvider }

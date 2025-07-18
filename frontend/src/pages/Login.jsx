@@ -1,54 +1,54 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { auth, googleProvider, githubProvider } from "../firebase";
+import { useState } from "react" 
+import { useNavigate } from "react-router-dom" 
+import { auth, googleProvider, githubProvider } from "../firebase" 
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
-} from "firebase/auth";
+} from "firebase/auth" 
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const [email, setEmail] = useState("") 
+  const [password, setPassword] = useState("") 
+  const navigate = useNavigate() 
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault() 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate("/dashboard");
+      await signInWithEmailAndPassword(auth, email, password) 
+      navigate("/dashboard") 
     } catch (err) {
-      alert(err.message);
+      alert(err.message) 
     }
-  };
+  } 
 
   const handleSignUp = async (e) => {
-    e.preventDefault();
+    e.preventDefault() 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      navigate("/dashboard");
+      await createUserWithEmailAndPassword(auth, email, password) 
+      navigate("/dashboard") 
     } catch (err) {
-      alert(err.message);
+      alert(err.message) 
     }
-  };
+  } 
 
   const handleGoogle = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      navigate("/dashboard");
+      await signInWithPopup(auth, googleProvider) 
+      navigate("/dashboard") 
     } catch (err) {
-      alert(err.message);
+      alert(err.message) 
     }
-  };
+  } 
 
   const handleGithub = async () => {
     try {
-      await signInWithPopup(auth, githubProvider);
-      navigate("/dashboard");
+      await signInWithPopup(auth, githubProvider) 
+      navigate("/dashboard") 
     } catch (err) {
-      alert(err.message);
+      alert(err.message) 
     }
-  };
+  } 
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-900">
@@ -99,7 +99,7 @@ function Login() {
         </div>
       </div>
     </div>
-  );
+  ) 
 }
 
-export default Login;
+export default Login 
