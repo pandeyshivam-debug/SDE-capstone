@@ -1,42 +1,32 @@
-import admin from 'firebase-admin'
-import jwt from 'jsonwebtoken'
+import admin from '../firebase/admin.js'
+import { generateToken } from '../utils/jwt.utils.js'
 
-const generateToken = (uid, role='user') => {
-    return jwt.sign({ uid, role }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN
-    })
-}
-
-export const signup = async (req, res) => {
-    const { email, password } = req.body
-    try {
-        const userRecord = await admin.auth().createUser({
-            email, password
-        })
-        const token = generateToken(userRecord.uid)
-        res.status(201).json({jwt: token})
-    } catch(err) {
-        res.status(400).json({error: err.message})
-    }
-}
-
-export const login = async (req, res) => {
-    const { email, password } = req.body
-    try {
-        const user = await admin.auth().getUserByEmail(email)
-        res.status(200).json({message: "success"})
-    } catch(err) {
-        res.status(400).json({ error: "Invalid credentials" })
-    }
-}
-
-export const verifyGoogleOrGithub = async (req, res) => {
+export async function getBackendToken(req, res, next) {
     const { idToken } = req.body
+    console.log("Incoming ID Token:", idToken)
+
+    if (!idToken) {
+        console.log("No ID token sent")
+        return res.status(400).json({ error: "ID token is required" })
+    }
+    
     try {
-        const decoded = await admin.auth().verifyIdToken(idToken)
-        const token = generateToken(decoded.uid)
-        res.status.json({token})
+        const decodedToken = await admin.auth().verifyIdToken(idToken)
+        console.log("Decoded Firebase Token:", decodedToken)
+
+        const role = decodedToken.email === "admin@example.com" ? "admin" : "user"
+
+        const backendToken = generateToken({
+            uid: decodedToken.uid,
+            email: decodedToken.email,
+            role: role
+        })
+
+        console.log("Generated backend JWT:", backendToken)
+
+        res.json({token: backendToken, role})
     } catch(err) {
-        res.status(401).json({error: "Invalid FIrebase Token"})
+        console.error("Error verifying Firebase token or generating JWT:", err)
+        next(err)
     }
 }

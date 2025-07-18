@@ -12,10 +12,36 @@ function Login() {
   const [password, setPassword] = useState("") 
   const navigate = useNavigate() 
 
+
+  const getBackendToken = async () => {
+    console.log("Getting backend token...");
+    try {
+      const idToken = await auth.currentUser.getIdToken(true); // Get Firebase ID token
+      const response = await fetch("http://localhost:5000/api/auth/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await response.json();
+      console.log("Backend JWT:", data.token);
+      console.log("Role:", data.role);
+
+      // Save backend JWT for future API calls
+      localStorage.setItem("backendToken", data.token);
+      localStorage.setItem("role", data.role);
+    } catch (err) {
+      console.error("Error getting backend token:", err);
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault() 
     try {
       await signInWithEmailAndPassword(auth, email, password) 
+      await getBackendToken()
       navigate("/dashboard") 
     } catch (err) {
       alert(err.message) 
@@ -35,6 +61,7 @@ function Login() {
   const handleGoogle = async () => {
     try {
       await signInWithPopup(auth, googleProvider) 
+      await getBackendToken()
       navigate("/dashboard") 
     } catch (err) {
       alert(err.message) 
@@ -44,6 +71,7 @@ function Login() {
   const handleGithub = async () => {
     try {
       await signInWithPopup(auth, githubProvider) 
+      await getBackendToken()
       navigate("/dashboard") 
     } catch (err) {
       alert(err.message) 

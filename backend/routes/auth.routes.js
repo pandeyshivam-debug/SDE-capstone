@@ -1,16 +1,8 @@
 import express from 'express'
-import { signup, login, verifyGoogleOrGithub } from '../controllers/auth.controller'
-import { protect, authorize } from '../middleware/auth.middleware'
+import { getBackendToken } from '../controllers/auth.controller'
 
 const router = express.Router()
 
-router.post('/signup', signup)
-router.post('/login', login)
-router.post('/social-login', verifyGoogleOrGithub)
-
-router.get("/protected", protect, authorize("admin"), (req, res) => {
-  res.json({ message: "You are an admin!" });
-});
-
+router.post('/token', getBackendToken)
 
 export default router

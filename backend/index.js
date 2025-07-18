@@ -1,18 +1,17 @@
-import express from 'express'
-import { config } from 'dotenv'
-import cors from 'cors'
-import authRoutes from './routes/auth.routes'
+import express from "express"
+import cors from "cors"
+import authRoutes from "./routes/auth.routes.js"
+import errorHandler from "./middleware/error.middleware.js"
 
-config()
-
-const app = express()
+const app = express();
 
 app.use(cors())
 app.use(express.json())
 
-app.use('/api/routes', authRoutes)
+// Routes
+app.use("/api/auth", authRoutes);
 
-const PORT = process.env.PORT || 3000
-app.listen(PORT, () => {
-    console.log(`Server listening on PORT: ${PORT}`)
-})
+// Global error handler
+app.use(errorHandler);
+
+export default app;
