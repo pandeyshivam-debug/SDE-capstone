@@ -19,7 +19,7 @@ export function getUserFiles(ownerId) {
 }
 
 export function getFileById(id) {
-    return files.filter((f) => f.id === parseInt(id))
+    return files.find(f => f.id === Number(id)) || null
 }
 
 export function updateFile(id, updates) {

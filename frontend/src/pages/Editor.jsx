@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import axios from "../utils/axiosInstance";
+import { useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
+import { EditorContent, useEditor } from "@tiptap/react"
+import StarterKit from "@tiptap/starter-kit"
+import axios from "../utils/axiosInstance"
 import { useNavigate } from "react-router-dom"
 
 function Editor() {
@@ -10,51 +10,50 @@ function Editor() {
   const [title, setTitle] = useState("Untitled");
   const navigate = useNavigate()
 
-
   useEffect(() => {
     if (!id) {
-      alert("No file ID found. Returning to dashboard.");
-      navigate("/dashboard");
+      alert("No file ID found. Returning to dashboard.")
+      navigate("/dashboard")
     }
   }, [id, navigate])
 
   const editor = useEditor({
     extensions: [StarterKit],
     content: "",
-  });
+  })
 
   // Load existing file content
   const fetchFile = async () => {
     try {
       const res = await axios.get("/files")
       setTitle(res.data.title);
-      editor?.commands.setContent(res.data.content);
+      editor?.commands.setContent(res.data.content)
     } catch (err) {
-      console.error("Error loading file:", err);
+      console.error("Error loading file:", err)
     }
   };
 
   useEffect(() => {
     if (editor) {
-      fetchFile();
+      fetchFile()
     }
-  }, [editor]);
+  }, [editor])
 
   const saveFile = async () => {
     if (!id) {
       console.error("No ID found when trying to save.");
-      return;
+      return
     }
     try {
       await axios.put(`/files/${id}`, {
         title,
         content: editor.getHTML(),
-      });
-      alert("Document saved!");
+      })
+      alert("Document saved!")
     } catch (err) {
-      console.error("Error saving file:", err);
+      console.error("Error saving file:", err)
     }
-  };
+  }
 
   if (!editor) return <p>Loading editor...</p>;
 
@@ -73,7 +72,7 @@ function Editor() {
         Save
       </button>
     </div>
-  );
+  )
 }
 
 export default Editor;

@@ -15,7 +15,7 @@ function Dashboard() {
   // }
 
   const fetchFiles = async () => {
-    const token = localStorage.getItem('backend-token')
+    // const token = localStorage.getItem('backend-token') //using axios instead :)
     try{
       const res = await axios.get("/files")
       setFiles(res.data)
@@ -45,12 +45,14 @@ function Dashboard() {
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-4">Your Documents</h1>
+{/*NEW DOCUMENT BUTTON*/ }
       <button
         onClick={handleNewDocument}
         className="mb-4 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
       >
         New Document
       </button>
+
       <ul>
         {files.map((file) => (
           <li
@@ -62,7 +64,9 @@ function Dashboard() {
           </li>
         ))}
       </ul>
+
     </div>
+
     // <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
     //   <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
     //     <button
@@ -75,4 +79,4 @@ function Dashboard() {
   )
 }
 
-export default Dashboard;
+export default Dashboard

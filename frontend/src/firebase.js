@@ -17,10 +17,10 @@ const googleProvider = new GoogleAuthProvider()
 const githubProvider = new GithubAuthProvider()
 
 // Track user auth state
-const checkAuth = (fn) => {
-    onAuthStateChanged(auth, (user) => {
-        fn(user)
-    })
-}
+// const checkAuth = (fn) => {
+//     onAuthStateChanged(auth, (user) => {
+//         fn(user)
+//     })
+// }
 
 export { auth, googleProvider, githubProvider }
