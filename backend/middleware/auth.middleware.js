@@ -10,7 +10,12 @@ export function requireAuth(req, res, next) {
 
     try {
         const decoded = verifyToken(token)
-        req.user = decoded
+        req.user = {
+            uid: decoded.uid,
+            email: decoded.email,
+            role: decoded.role,
+        };
+        console.log("Authenticated user:", req.user)
         next()
     } catch (err) {
         return res.status(401).json({ error: "Invalid or expired token" })

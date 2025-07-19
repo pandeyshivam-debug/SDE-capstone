@@ -1,15 +1,20 @@
 import express from 'express'
-import * as fileController from '../controllers/file.controller'
 import { requireAuth } from '../middleware/auth.middleware'
+import { 
+    createFile,
+    getUserFiles,
+    getFileById,
+    updateFile,
+    deleteFile } from '../controllers/file.controller'
 
 const router = express.Router()
 
 router.use(requireAuth)
 
-router.post("/", fileController.create)
-router.get("/", fileController.getAll)
-router.get("/:id", fileController.getOne)
-router.put("/:id", fileController.update)
-router.delete("/:id", fileController.remove)
+router.get("/", getUserFiles)      
+router.get("/:id", getFileById)   
+router.post("/", createFile)      
+router.put("/:id", updateFile);    
+router.delete("/:id", deleteFile)
 
 export default router
