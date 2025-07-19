@@ -1,5 +1,6 @@
 import express from "express"
 import cors from "cors"
+
 import authRoutes from "./routes/auth.routes.js"
 import errorHandler from "./middleware/error.middleware.js"
 import fileRoutes from "./routes/file.routes.js"

@@ -19,9 +19,8 @@ function Login() {
       const response = await fetch("http://localhost:5000/api/auth/token", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ idToken }),
+          Authorization: `Bearer ${idToken}`,
+        }
       })
 
       const data = await response.json();
@@ -51,6 +50,7 @@ function Login() {
     e.preventDefault() 
     try {
       await createUserWithEmailAndPassword(auth, email, password) 
+      await getBackendToken()
       navigate("/dashboard") 
     } catch (err) {
       alert(err.message) 
