@@ -3,7 +3,7 @@ import { generateToken } from '../utils/jwt.utils.js'
 
 export async function getBackendToken(req, res, next) {
     const { idToken } = req.body
-    console.log("Incoming ID Token:", idToken)
+    // console.log("Incoming ID Token:", idToken)
 
     if (!idToken) {
         console.log("No ID token sent")
@@ -12,7 +12,7 @@ export async function getBackendToken(req, res, next) {
     
     try {
         const decodedToken = await admin.auth().verifyIdToken(idToken)
-        console.log("Decoded Firebase Token:", decodedToken)
+        // console.log("Decoded Firebase Token:", decodedToken)
 
         const role = decodedToken.email === "admin@example.com" ? "admin" : "user"
 
