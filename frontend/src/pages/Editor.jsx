@@ -66,7 +66,8 @@ function Editor() {
         title: title || "Untitled",
         content: contentJSON,
       });
-      console.log("Document saved!");
+      setTimeout(() => setSaving(false), 1000)
+      // console.log("Document saved!");
     } catch (err) {
       console.error("Error saving file:", err);
       alert("Failed to save document.");
@@ -83,25 +84,41 @@ function Editor() {
   }
 
   return (
-    <div className="p-4">
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="text-2xl font-bold mb-4 w-full border-b p-2"
-        placeholder="Document Title"
-      />
-      <EditorContent editor={editor} className="border p-4 rounded" />
-      <button
-        onClick={saveFile}
-        className={`mt-4 px-4 py-2 rounded text-white ${
-          saving ? "bg-gray-500" : "bg-green-600 hover:bg-green-700"
-        }`}
-        disabled={saving}
-      >
-        {saving ? "Saving..." : "Save"}
-      </button>
+    <div className="flex flex-col h-screen bg-gray-100">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between p-2 shadow bg-white">
+        <div className="flex items-center space-x-2">
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="text-lg font-medium px-2 py-1 rounded focus:outline-none focus:ring w-64"
+            placeholder="Document Title"
+          />
+          {saving && (
+            <span className="text-sm text-gray-500 animate-pulse">
+              Saving...
+            </span>
+          )}
+        </div>
+        <button
+          onClick={saveFile}
+          className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Save
+        </button>
+      </div>
+
+      {/* Editor Container */}
+      <div className="flex justify-center flex-1 overflow-y-auto p-4">
+        <div className="w-full max-w-4xl bg-white shadow-md rounded p-8">
+          <EditorContent
+            editor={editor}
+            className="min-h-[70vh] focus:outline-none"
+          />
+        </div>
+      </div>
     </div>
-  );
+  )
 }
 
 export default Editor;
