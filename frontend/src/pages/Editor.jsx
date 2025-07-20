@@ -5,6 +5,8 @@ import { BubbleMenu } from "@tiptap/react/menus"
 import Loader from "../components/Loader"
 import StarterKit from "@tiptap/starter-kit"
 import Highlight from "@tiptap/extension-highlight"
+import SlashCommand from "../extensions/SlashCommand" // Add this
+import suggestionRenderer from "../utils/suggestionRenderer" // Add this
 import "prosemirror-view/style/prosemirror.css"
 import axios from "../utils/axiosInstance"
 
@@ -23,11 +25,17 @@ function Editor() {
   const [title, setTitle] = useState("Untitled");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showHeadingDropdown, setShowHeadingDropdown] = useState(false); // Add this state
+  const [showHeadingDropdown, setShowHeadingDropdown] = useState(false);
   const navigate = useNavigate();
 
   const editor = useEditor({
-    extensions: [StarterKit, Highlight],
+    extensions: [
+      StarterKit,
+      Highlight,
+      SlashCommand.configure({ // Add slash command extension
+        suggestion: suggestionRenderer,
+      }),
+    ],
     content: "<p>Loading...</p>",
   });
 
@@ -230,6 +238,9 @@ function Editor() {
             editor={editor}
             className="min-h-[70vh] focus:outline-none prose prose-lg max-w-none"
           />
+          <div className="absolute bottom-4 right-4 text-xs text-gray-400">
+            Type "/" for commands
+          </div>
         </div>
       </div>
     </div>
