@@ -51,6 +51,14 @@ function Editor() {
     }
   }, [id, editor, navigate, fetchFile]);
 
+  useEffect(() => {
+    return () => {
+      if (editor) {
+        editor.destroy()
+      }
+    }
+  }, [editor])
+
   const handleSave = () => saveFile(editor);
 
   if (loading) {

@@ -1,38 +1,36 @@
-import { ReactRenderer } from '@tiptap/react';
-import tippy from 'tippy.js';
-import SlashCommands from '../components/SlashCommands';
+import { ReactRenderer } from '@tiptap/react'
+import tippy from 'tippy.js'
+import SlashCommands from '../components/SlashCommands'
 
 export default {
   items: ({ query }) => {
     return [
       'Heading 1',
-      'Heading 2', 
+      'Heading 2',
       'Heading 3',
       'Bullet List',
       'Quote',
       'Code Block',
       'Text'
     ]
-    .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
-    .slice(0, 10);
+      .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
+      .slice(0, 10)
   },
 
   render: () => {
-    let component;
-    let popup;
+    let component
+    let popupInstance
 
     return {
       onStart: (props) => {
         component = new ReactRenderer(SlashCommands, {
           props,
           editor: props.editor,
-        });
+        })
 
-        if (!props.clientRect) {
-          return;
-        }
+        if (!props.clientRect) return
 
-        popup = tippy('body', {
+        popupInstance = tippy('body', {
           getReferenceClientRect: props.clientRect,
           appendTo: () => document.body,
           content: component.element,
@@ -40,34 +38,38 @@ export default {
           interactive: true,
           trigger: 'manual',
           placement: 'bottom-start',
-        });
+        })
       },
 
       onUpdate(props) {
-        component.updateProps(props);
+        component.updateProps(props)
 
-        if (!props.clientRect) {
-          return;
-        }
+        if (!props.clientRect || !popupInstance) return
 
-        popup[0].setProps({
+        popupInstance.setProps({
           getReferenceClientRect: props.clientRect,
-        });
+        })
       },
 
       onKeyDown(props) {
-        if (props.event.key === 'Escape') {
-          popup[0].hide();
-          return true;
+        if (props.event.key === 'Escape' && popupInstance) {
+          popupInstance.hide()
+          return true
         }
-
-        return component.ref?.onKeyDown(props);
+        return component.ref?.onKeyDown?.(props)
       },
 
       onExit() {
-        popup[0].destroy();
-        component.destroy();
-      },
-    };
+        if (popupInstance?.state && !popupInstance.state.isDestroyed) {
+          popupInstance.destroy()
+        }
+        popupInstance = null
+
+        if (component) {
+          component.destroy()
+        }
+        component = null
+      }
+    }
   },
-};
+}
