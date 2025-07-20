@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { BubbleMenu } from "@tiptap/react/menus"
+import Loader from "../components/Loader"
 import StarterKit from "@tiptap/starter-kit"
 import Highlight from "@tiptap/extension-highlight"
 import "prosemirror-view/style/prosemirror.css"
@@ -75,11 +76,7 @@ function Editor() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
-        <p className="text-gray-500">Loading document...</p>
-      </div>
-    );
+    return (<Loader text="Opening document..." />);
   }
 
   return (

@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom"
 import { auth } from "../firebase"
 // import { signOut } from "firebase/auth"
 import axios from '../utils/axiosInstance'
+import Loader from '../components/Loader'
 
 function Dashboard() {
   // useNavigate hook to navigate after logging out
   const [files, setFiles] = useState([])
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(true)
 
   // const handleLogout = async () => {
   //   await signOut(auth);
@@ -21,6 +23,8 @@ function Dashboard() {
       setFiles(res.data)
     } catch(err) {
       console.error("Error fetching files", err)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -47,6 +51,9 @@ function Dashboard() {
     localStorage.removeItem("role")
     navigate("/")
   }
+
+  if (loading) return <Loader text="Loading your documents..." />
+
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-4">Your Documents</h1>
