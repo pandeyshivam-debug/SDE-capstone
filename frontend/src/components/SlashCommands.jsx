@@ -1,154 +1,148 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react'
 import {
-  Bold,
-  Italic,
   Heading,
   List,
   Quote,
   Code,
   Hash,
-  Type,
-  CheckSquare
-} from 'lucide-react';
+  Type
+} from 'lucide-react'
 
 const SlashCommands = forwardRef((props, ref) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0)
 
   const commands = [
     {
       title: 'Heading 1',
       description: 'Big section heading',
       icon: <Heading size={16} />,
-      command: ({ editor, range }) => {
-        editor
+      command: () => {
+        props.editor
           .chain()
           .focus()
-          .deleteRange(range)
+          .deleteRange(props.range)
           .setNode('heading', { level: 1 })
-          .run();
+          .run()
       }
     },
     {
       title: 'Heading 2',
       description: 'Medium section heading',
       icon: <Hash size={16} />,
-      command: ({ editor, range }) => {
-        editor
+      command: () => {
+        props.editor
           .chain()
           .focus()
-          .deleteRange(range)
+          .deleteRange(props.range)
           .setNode('heading', { level: 2 })
-          .run();
+          .run()
       }
     },
     {
       title: 'Heading 3',
       description: 'Small section heading',
       icon: <Hash size={16} />,
-      command: ({ editor, range }) => {
-        editor
+      command: () => {
+        props.editor
           .chain()
           .focus()
-          .deleteRange(range)
+          .deleteRange(props.range)
           .setNode('heading', { level: 3 })
-          .run();
+          .run()
       }
     },
     {
       title: 'Bullet List',
       description: 'Create a simple bullet list',
       icon: <List size={16} />,
-      command: ({ editor, range }) => {
-        editor
+      command: () => {
+        props.editor
           .chain()
           .focus()
-          .deleteRange(range)
+          .deleteRange(props.range)
           .toggleBulletList()
-          .run();
+          .run()
       }
     },
     {
       title: 'Quote',
       description: 'Capture a quote',
       icon: <Quote size={16} />,
-      command: ({ editor, range }) => {
-        editor
+      command: () => {
+        props.editor
           .chain()
           .focus()
-          .deleteRange(range)
+          .deleteRange(props.range)
           .toggleBlockquote()
-          .run();
+          .run()
       }
     },
     {
       title: 'Code Block',
       description: 'Capture a code snippet',
       icon: <Code size={16} />,
-      command: ({ editor, range }) => {
-        editor
+      command: () => {
+        props.editor
           .chain()
           .focus()
-          .deleteRange(range)
+          .deleteRange(props.range)
           .toggleCodeBlock()
-          .run();
+          .run()
       }
     },
     {
       title: 'Text',
       description: 'Just start writing with plain text',
       icon: <Type size={16} />,
-      command: ({ editor, range }) => {
-        editor
+      command: () => {
+        props.editor
           .chain()
           .focus()
-          .deleteRange(range)
+          .deleteRange(props.range)
           .setParagraph()
-          .run();
+          .run()
       }
     }
-  ];
+  ]
 
   const selectItem = (index) => {
-    const item = commands[index];
+    const item = commands[index]
     if (item) {
-      item.command(props);
+      item.command() // Pass command closure to Suggestion
     }
-  };
+  }
 
   const upHandler = () => {
-    setSelectedIndex(((selectedIndex + commands.length) - 1) % commands.length);
-  };
+    setSelectedIndex((selectedIndex + commands.length - 1) % commands.length)
+  }
 
   const downHandler = () => {
-    setSelectedIndex((selectedIndex + 1) % commands.length);
-  };
+    setSelectedIndex((selectedIndex + 1) % commands.length)
+  }
 
   const enterHandler = () => {
-    selectItem(selectedIndex);
-  };
+    selectItem(selectedIndex)
+  }
 
-  useEffect(() => setSelectedIndex(0), []);
+  useEffect(() => setSelectedIndex(0), [])
 
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }) => {
       if (event.key === 'ArrowUp') {
-        upHandler();
-        return true;
+        upHandler()
+        return true
       }
-
       if (event.key === 'ArrowDown') {
-        downHandler();
-        return true;
+        downHandler()
+        return true
       }
-
       if (event.key === 'Enter') {
-        enterHandler();
-        return true;
+        enterHandler()
+        return true
       }
-
-      return false;
+      return false
     }
-  }));
+  }))
 
   return (
     <div className="bg-white border rounded-lg shadow-lg p-1 max-w-xs min-w-[250px] max-h-80 overflow-y-auto z-50">
@@ -174,9 +168,9 @@ const SlashCommands = forwardRef((props, ref) => {
         </button>
       ))}
     </div>
-  );
-});
+  )
+})
 
-SlashCommands.displayName = 'SlashCommands';
+SlashCommands.displayName = 'SlashCommands'
 
-export default SlashCommands;
+export default SlashCommands

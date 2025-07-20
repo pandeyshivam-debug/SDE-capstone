@@ -1,6 +1,5 @@
-import { Extension } from '@tiptap/core';
-import { PluginKey } from 'prosemirror-state';
-import Suggestion from '@tiptap/suggestion';
+import { Extension } from '@tiptap/core'
+import Suggestion from '@tiptap/suggestion'
 
 export default Extension.create({
   name: 'slashCommand',
@@ -9,11 +8,11 @@ export default Extension.create({
     return {
       suggestion: {
         char: '/',
-        command: ({ editor, range, props }) => {
-          props.command({ editor, range });
+        command: ({ props }) => {
+          props.command() // props.command already knows editor & range
         },
       },
-    };
+    }
   },
 
   addProseMirrorPlugins() {
@@ -22,6 +21,6 @@ export default Extension.create({
         editor: this.editor,
         ...this.options.suggestion,
       }),
-    ];
+    ]
   },
-});
+})
