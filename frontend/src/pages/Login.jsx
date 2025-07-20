@@ -1,6 +1,7 @@
 import { useState } from "react" 
 import { useNavigate } from "react-router-dom" 
 import { auth, googleProvider, githubProvider } from "../firebase" 
+import Loader from "../components/Loader"
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -11,6 +12,8 @@ function Login() {
   const [email, setEmail] = useState("") 
   const [password, setPassword] = useState("") 
   const navigate = useNavigate() 
+  const [loading, setLoading] = useState(false)
+
 
   const getBackendToken = async () => {
     console.log("Getting backend token...")
@@ -37,6 +40,7 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault() 
+    setLoading(true)
     try {
       await signInWithEmailAndPassword(auth, email, password) 
       await getBackendToken()
@@ -48,6 +52,7 @@ function Login() {
 
   const handleSignUp = async (e) => {
     e.preventDefault() 
+    setLoading(true)
     try {
       await createUserWithEmailAndPassword(auth, email, password) 
       await getBackendToken()
@@ -58,6 +63,7 @@ function Login() {
   } 
 
   const handleGoogle = async () => {
+    setLoading(true)
     try {
       await signInWithPopup(auth, googleProvider) 
       await getBackendToken()
@@ -68,6 +74,7 @@ function Login() {
   } 
 
   const handleGithub = async () => {
+    setLoading(true)
     try {
       await signInWithPopup(auth, githubProvider) 
       await getBackendToken()
@@ -76,6 +83,7 @@ function Login() {
       alert(err.message) 
     }
   } 
+  if (loading) return <Loader text="Logging you in..." />
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-900">
