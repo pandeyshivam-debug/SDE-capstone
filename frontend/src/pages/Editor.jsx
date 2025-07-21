@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -8,14 +8,15 @@ import suggestionRenderer from "../utils/suggestionRenderer";
 import { useEditorOperations } from "../hooks/useEditorOperations";
 import { EditorToolbar, EditorCanvas } from "../components/editor";
 import Loader from "../components/Loader";
+import { createPeer } from "../utils/peer";
 import "prosemirror-view/style/prosemirror.css";
-import socket from "../utils/socket";
-
 
 function Editor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+  const [peerId, setPeerId] = useState(null);
+  const [connections, setConnections] = useState([]);
+
   const {
     title,
     setTitle,
@@ -40,12 +41,14 @@ function Editor() {
       },
     },
     onUpdate: ({ editor }) => {
-        const jsonContent = editor.getJSON();
-        socket.emit("docUpdate", {
-            fileId: id,
-            content: jsonContent
-        });
-    }
+      const jsonContent = editor.getJSON();
+      const payload = JSON.stringify(jsonContent)
+      connections.forEach((conn) => {
+        if (conn.open) {
+          conn.send(payload);
+        }
+      });
+    },
   });
 
   useEffect(() => {
@@ -54,20 +57,42 @@ function Editor() {
       navigate("/dashboard");
       return;
     }
-    
+
     if (editor) {
       fetchFile(editor);
-      socket.emit("joinRoom", id);
     }
-  }, [id, editor, navigate, fetchFile]);
 
-  useEffect(() => {
+    const peer = createPeer();
+
+    peer.on("open", (id) => {
+      console.log("Editor Peer ID:", id);
+      setPeerId(id);
+    });
+
+    peer.on("connection", (conn) => {
+      console.log("Viewer connected:", conn.peer);
+      setConnections((prev) => [...prev, conn]);
+
+      conn.on("open", () => {
+        console.log("DataChannel open with Viewer:", conn.peer)
+        // ðŸ†• Send current content immediately
+        if (editor) {
+            const content = editor.getJSON();
+            conn.send(`${JSON.stringify(content)}`);
+            console.log("Sent initial content to Viewer");
+        }
+      });
+
+      conn.on("close", () => {
+        console.log("Viewer disconnected:", conn.peer);
+        setConnections((prev) => prev.filter(c => c.peer !== conn.peer));
+      });
+    });
+
     return () => {
-      if (editor) {
-        editor.destroy()
-      }
-    }
-  }, [editor])
+      peer.destroy();
+    };
+  }, [id, editor, fetchFile, navigate]);
 
   const handleSave = () => saveFile(editor);
 
@@ -84,6 +109,14 @@ function Editor() {
         onSave={handleSave}
       />
       <EditorCanvas editor={editor} />
+      {peerId && (
+        <div className="fixed bottom-4 right-4 bg-white border shadow px-4 py-2 rounded">
+          <p className="text-sm font-medium">Share this link with viewers:</p>
+          <p className="text-blue-600 text-xs mt-1 break-words">
+            {`${window.location.origin}/view/${peerId}`}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
