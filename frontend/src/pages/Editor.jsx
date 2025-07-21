@@ -10,6 +10,9 @@ import { EditorToolbar, EditorCanvas } from "../components/editor";
 import Loader from "../components/Loader";
 import { createPeer } from "../utils/peer";
 import "prosemirror-view/style/prosemirror.css";
+import ShareModal from '../components/ShareModal'
+import { UserPlus } from "lucide-react";
+
 
 function Editor() {
   const { id } = useParams();
@@ -17,6 +20,7 @@ function Editor() {
   const [peerId, setPeerId] = useState(null);
   const [connections, setConnections] = useState([]);
   const [copied, setCopied] = useState(false); // 🆕 For copied feedback
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const {
     title,
@@ -82,7 +86,17 @@ function Editor() {
           console.log("Sent initial content to Viewer");
         }
       });
-
+      conn.on("data", (data) => {
+        try {
+          const payload = JSON.parse(data);
+          // Handle collaborative editing data
+          if (payload.type === 'content-update' && editor) {
+            editor.commands.setContent(payload.content, false);
+          }
+        } catch (err) {
+          console.error("Error handling collaborative data:", err);
+        }
+      });
       conn.on("close", () => {
         console.log("Viewer disconnected:", conn.peer);
         setConnections((prev) => prev.filter(c => c.peer !== conn.peer));
@@ -96,14 +110,42 @@ function Editor() {
 
   const handleSave = () => saveFile(editor);
 
-  const handleShare = () => {
+  // const handleShare = () => {
+  //   if (!peerId) return;
+  //   const shareLink = `${window.location.origin}/view/${peerId}`;
+  //   navigator.clipboard.writeText(shareLink).then(() => {
+  //     setCopied(true);
+  //     setTimeout(() => setCopied(false), 2000); // Reset after 2s
+  //   });
+  // };
+  const handleShareEditor = () => {
+    if (!peerId) return;
+    const shareLink = `${window.location.origin}/collaborate/${id}/${peerId}`;
+    navigator.clipboard.writeText(shareLink).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const handleShareViewer = () => {
     if (!peerId) return;
     const shareLink = `${window.location.origin}/view/${peerId}`;
     navigator.clipboard.writeText(shareLink).then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset after 2s
+      setTimeout(() => setCopied(false), 2000);
     });
   };
+
+  const ShareWithOthersButton = () => (
+    <button
+      onClick={() => setShowShareModal(true)}
+      className="px-3 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 flex items-center gap-2"
+      title="Share with other users via email"
+    >
+      <UserPlus size={16} />
+      Share with Others
+    </button>
+  );
 
   if (loading) {
     return <Loader text="Opening document..." />;
@@ -116,16 +158,17 @@ function Editor() {
         setTitle={setTitle}
         saving={saving}
         onSave={handleSave}
-        extraButton={peerId && (
-          <button
-            onClick={handleShare}
-            className="ml-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm transition"
-          >
-            {copied ? "Copied!" : "Share"}
-          </button>
-        )}
+        onShareViewer={handleShareViewer}
+        onShareEditor={handleShareEditor}
+        copied={copied}
+        extraButton={<ShareWithOthersButton />}
       />
       <EditorCanvas editor={editor} />
+      <ShareModal 
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        fileId={id}
+      />
     </div>
   );
 }
