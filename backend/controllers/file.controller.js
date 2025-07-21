@@ -193,10 +193,23 @@ export async function getCollaborators(req, res) {
       .where('fileId', '==', fileId)
       .get();
 
-    const collaborators = collabQuery.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    const collaborators = await Promise.all(
+      collabQuery.docs.map(async (doc) => {
+        const collabData = doc.data();
+        
+        // Fetch user details to get email
+        const userDoc = await db.collection('users').doc(collabData.collaboratorId).get();
+        const userData = userDoc.exists ? userDoc.data() : null;
+
+        return {
+          id: doc.id,
+          ...collabData,
+          collaboratorEmail: userData?.email || collabData.collaboratorId, // Show email or fallback to ID
+          createdAt: collabData.createdAt?.toDate?.() || collabData.createdAt,
+          updatedAt: collabData.updatedAt?.toDate?.() || collabData.updatedAt
+        };
+      })
+    );
 
     res.json(collaborators);
   } catch (err) {

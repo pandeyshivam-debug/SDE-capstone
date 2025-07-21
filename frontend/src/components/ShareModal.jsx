@@ -180,11 +180,12 @@ function ShareModal({ isOpen, onClose, fileId }) {
               {collaborators.map((collab) => (
                 <div key={collab.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded">
                   <div className="flex-1">
-                    <p className="text-sm font-medium">{collab.collaboratorId}</p>
+                    <p className="text-sm font-medium">{collab.collaboratorEmail}</p>
                     <p className="text-xs text-gray-500">
                       {collab.permission === 'write' ? 'Can Edit' : 'View Only'} • 
-                      Added {new Date(collab.createdAt?.toDate?.() || collab.createdAt).toLocaleDateString()}
+                      Added {new Date(collab.createdAt).toLocaleDateString()}
                     </p>
+
                   </div>
                   {/* ✅ ADD THIS REMOVE BUTTON */}
                   <button
