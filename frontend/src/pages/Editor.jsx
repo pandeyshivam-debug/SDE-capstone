@@ -16,6 +16,7 @@ function Editor() {
   const navigate = useNavigate();
   const [peerId, setPeerId] = useState(null);
   const [connections, setConnections] = useState([]);
+  const [copied, setCopied] = useState(false); // 🆕 For copied feedback
 
   const {
     title,
@@ -42,7 +43,7 @@ function Editor() {
     },
     onUpdate: ({ editor }) => {
       const jsonContent = editor.getJSON();
-      const payload = JSON.stringify(jsonContent)
+      const payload = JSON.stringify(jsonContent);
       connections.forEach((conn) => {
         if (conn.open) {
           conn.send(payload);
@@ -74,12 +75,11 @@ function Editor() {
       setConnections((prev) => [...prev, conn]);
 
       conn.on("open", () => {
-        console.log("DataChannel open with Viewer:", conn.peer)
-        // ðŸ†• Send current content immediately
+        console.log("DataChannel open with Viewer:", conn.peer);
         if (editor) {
-            const content = editor.getJSON();
-            conn.send(`${JSON.stringify(content)}`);
-            console.log("Sent initial content to Viewer");
+          const content = editor.getJSON();
+          conn.send(`${JSON.stringify(content)}`);
+          console.log("Sent initial content to Viewer");
         }
       });
 
@@ -96,6 +96,15 @@ function Editor() {
 
   const handleSave = () => saveFile(editor);
 
+  const handleShare = () => {
+    if (!peerId) return;
+    const shareLink = `${window.location.origin}/view/${peerId}`;
+    navigator.clipboard.writeText(shareLink).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset after 2s
+    });
+  };
+
   if (loading) {
     return <Loader text="Opening document..." />;
   }
@@ -107,16 +116,16 @@ function Editor() {
         setTitle={setTitle}
         saving={saving}
         onSave={handleSave}
+        extraButton={peerId && (
+          <button
+            onClick={handleShare}
+            className="ml-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm transition"
+          >
+            {copied ? "Copied!" : "Share"}
+          </button>
+        )}
       />
       <EditorCanvas editor={editor} />
-      {peerId && (
-        <div className="fixed bottom-4 right-4 bg-white border shadow px-4 py-2 rounded">
-          <p className="text-sm font-medium">Share this link with viewers:</p>
-          <p className="text-blue-600 text-xs mt-1 break-words">
-            {`${window.location.origin}/view/${peerId}`}
-          </p>
-        </div>
-      )}
     </div>
   );
 }
