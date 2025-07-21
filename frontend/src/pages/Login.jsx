@@ -38,16 +38,29 @@ function Login() {
     }
   }
 
+  const mapFirebaseError = (code) => {
+    const errors = {
+      "auth/invalid-credential": "Invalid email or password.",
+      "auth/user-not-found": "No account found with this email.",
+      "auth/wrong-password": "Incorrect password. Try again.",
+      "auth/email-already-in-use": "This email is already registered.",
+      "auth/weak-password": "Password should be at least 6 characters.",
+      "auth/popup-closed-by-user": "Login cancelled.",
+      "auth/network-request-failed": "Network error. Check your connection.",
+    }
+    return errors[code] || "Something went wrong. Please try again."
+  }
+
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setError(null) // Clear any previous error
+    setError(null)
     try {
       await signInWithEmailAndPassword(auth, email, password)
       await getBackendToken()
       navigate("/dashboard")
     } catch (err) {
-      setError(err.message)
+      setError(mapFirebaseError(err.code))
     } finally {
       setLoading(false)
     }
@@ -62,7 +75,7 @@ function Login() {
       await getBackendToken(name)
       navigate("/dashboard")
     } catch (err) {
-      setError(err.message)
+      setError(mapFirebaseError(err.code))
     } finally {
       setLoading(false)
     }
@@ -77,7 +90,7 @@ function Login() {
       await getBackendToken(displayName)
       navigate("/dashboard")
     } catch (err) {
-      setError(err.message)
+      setError(mapFirebaseError(err.code))
     } finally {
       setLoading(false)
     }
@@ -92,7 +105,7 @@ function Login() {
       await getBackendToken(displayName)
       navigate("/dashboard")
     } catch (err) {
-      setError(err.message)
+      setError(mapFirebaseError(err.code))
     } finally {
       setLoading(false)
     }
@@ -153,7 +166,7 @@ function Login() {
           className="text-sm text-gray-400 text-center mt-4 cursor-pointer hover:underline"
           onClick={() => {
             setIsSignUp(!isSignUp)
-            setError(null) // Clear error when toggling form
+            setError(null)
           }}
         >
           {isSignUp ? "Already have an account? Login" : "New here? Create account"}

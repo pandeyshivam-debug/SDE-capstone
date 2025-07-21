@@ -1,14 +1,18 @@
 import { Save, Share, Edit } from "lucide-react";
 
 function EditorToolbar({ title, setTitle, saving, onSave, onShareViewer, onShareEditor, copied, extraButton }) {
+  // Shared button styles
+  const buttonClass =
+    "px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-2 transition-colors";
+
   return (
-    <div className="border-b bg-white px-4 py-3">
+    <div className="border-b bg-gray-50 dark:bg-gray-800 px-4 py-3 shadow-sm">
       <div className="flex items-center justify-between">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="text-lg font-semibold bg-transparent border-none outline-none"
+          className="text-2xl font-semibold bg-transparent border-none outline-none dark:text-gray-100"
           placeholder="Untitled Document"
         />
         <div className="flex items-center gap-3">
@@ -16,17 +20,16 @@ function EditorToolbar({ title, setTitle, saving, onSave, onShareViewer, onShare
           <button
             onClick={onSave}
             disabled={saving}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
+            className={`${buttonClass} disabled:opacity-50`}
           >
             <Save size={16} />
             {saving ? "Saving..." : "Save"}
           </button>
 
-          {/* ADD SHARE BUTTONS HERE - AFTER SAVE BUTTON */}
           {/* Share for Viewing Button */}
           <button
             onClick={onShareViewer}
-            className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2"
+            className={buttonClass}
             title="Share for viewing (read-only)"
           >
             <Share size={16} />
@@ -36,7 +39,7 @@ function EditorToolbar({ title, setTitle, saving, onSave, onShareViewer, onShare
           {/* Share for Editing Button */}
           <button
             onClick={onShareEditor}
-            className="px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-2"
+            className={buttonClass}
             title="Share for collaborative editing"
           >
             <Edit size={16} />
@@ -50,7 +53,12 @@ function EditorToolbar({ title, setTitle, saving, onSave, onShareViewer, onShare
             </span>
           )}
 
-          {extraButton}
+          {/* Extra Button */}
+          {extraButton && (
+            <div className={buttonClass}>
+              {extraButton}
+            </div>
+          )}
         </div>
       </div>
     </div>

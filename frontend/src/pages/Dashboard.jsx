@@ -93,14 +93,14 @@ function Dashboard() {
           <h1 className="text-2xl font-bold text-gray-800">MyDocs</h1>
           <button
             onClick={handleNewDocument}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition shadow"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition shadow"
           >
             <Plus size={18} /> New Document
           </button>
         </header>
 
         {/* Documents Grid */}
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+        <main className="flex-1 overflow-y-auto p-6 bg-gray-100">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Your Documents</h2>
           {files.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-gray-500 mt-20">
@@ -127,7 +127,7 @@ function Dashboard() {
                 <div
                   key={file.id}
                   onClick={() => navigate(`/editor/${file.id}`)}
-                  className="cursor-pointer p-4 bg-white rounded-lg shadow hover:shadow-md transition group"
+                  className="cursor-pointer p-4 bg-gray-100 rounded-lg shadow hover:shadow-md transition group"
                 >
                   <h3 className="text-lg font-medium text-gray-800 group-hover:text-blue-600">
                     {file.title}

@@ -139,11 +139,11 @@ function Editor() {
   const ShareWithOthersButton = () => (
     <button
       onClick={() => setShowShareModal(true)}
-      className="px-3 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 flex items-center gap-2"
-      title="Share with other users via email"
-    >
-      <UserPlus size={16} />
-      Share with Others
+    className="flex items-center gap-2" // ✅ strip custom styles
+    title="Share with other users via email"
+  >
+    <UserPlus size={16} />
+    Share with Others
     </button>
   );
 
@@ -152,7 +152,7 @@ function Editor() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
       <EditorToolbar
         title={title}
         setTitle={setTitle}
