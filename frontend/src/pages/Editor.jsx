@@ -96,14 +96,32 @@ function Editor() {
 
   const handleSave = () => saveFile(editor);
 
-  const handleShare = () => {
+  // const handleShare = () => {
+  //   if (!peerId) return;
+  //   const shareLink = `${window.location.origin}/view/${peerId}`;
+  //   navigator.clipboard.writeText(shareLink).then(() => {
+  //     setCopied(true);
+  //     setTimeout(() => setCopied(false), 2000); // Reset after 2s
+  //   });
+  // };
+  const handleShareEditor = () => {
+    if (!peerId) return;
+    const shareLink = `${window.location.origin}/collaborate/${id}/${peerId}`;
+    navigator.clipboard.writeText(shareLink).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const handleShareViewer = () => {
     if (!peerId) return;
     const shareLink = `${window.location.origin}/view/${peerId}`;
     navigator.clipboard.writeText(shareLink).then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset after 2s
+      setTimeout(() => setCopied(false), 2000);
     });
   };
+
 
   if (loading) {
     return <Loader text="Opening document..." />;
@@ -116,14 +134,9 @@ function Editor() {
         setTitle={setTitle}
         saving={saving}
         onSave={handleSave}
-        extraButton={peerId && (
-          <button
-            onClick={handleShare}
-            className="ml-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm transition"
-          >
-            {copied ? "Copied!" : "Share"}
-          </button>
-        )}
+        onShareViewer={handleShareViewer}
+        onShareEditor={handleShareEditor}
+        copied={copied}
       />
       <EditorCanvas editor={editor} />
     </div>

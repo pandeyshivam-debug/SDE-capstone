@@ -1,35 +1,57 @@
-import { Save } from "lucide-react";
+import { Save, Share, Edit } from "lucide-react";
 
-function EditorToolbar({ title, setTitle, saving, onSave, extraButton }) {
+function EditorToolbar({ title, setTitle, saving, onSave, onShareViewer, onShareEditor, copied, extraButton }) {
   return (
-    <div className="flex items-center justify-between p-4 shadow bg-white border-b">
-      <div className="flex items-center space-x-3">
+    <div className="border-b bg-white px-4 py-3">
+      <div className="flex items-center justify-between">
         <input
+          type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="text-xl font-semibold px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-80 border border-gray-200"
-          placeholder="Document Title"
+          className="text-lg font-semibold bg-transparent border-none outline-none"
+          placeholder="Untitled Document"
         />
-        {saving && (
-          <span className="text-sm text-gray-500 animate-pulse flex items-center">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping mr-2"></div>
-            Saving...
-          </span>
-        )}
-      </div>
+        <div className="flex items-center gap-3">
+          {/* Save Button */}
+          <button
+            onClick={onSave}
+            disabled={saving}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
+          >
+            <Save size={16} />
+            {saving ? "Saving..." : "Save"}
+          </button>
 
-      <div className="flex items-center space-x-2">
-        {/* Optional Extra Button (like Share) */}
-        {extraButton && extraButton}
+          {/* ADD SHARE BUTTONS HERE - AFTER SAVE BUTTON */}
+          {/* Share for Viewing Button */}
+          <button
+            onClick={onShareViewer}
+            className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2"
+            title="Share for viewing (read-only)"
+          >
+            <Share size={16} />
+            Share View
+          </button>
 
-        {/* Save Button */}
-        <button
-          onClick={onSave}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-        >
-          <Save size={16} />
-          <span>Save</span>
-        </button>
+          {/* Share for Editing Button */}
+          <button
+            onClick={onShareEditor}
+            className="px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-2"
+            title="Share for collaborative editing"
+          >
+            <Edit size={16} />
+            Share Edit
+          </button>
+
+          {/* Show copied feedback */}
+          {copied && (
+            <span className="text-sm text-green-600 font-medium">
+              Link copied!
+            </span>
+          )}
+
+          {extraButton}
+        </div>
       </div>
     </div>
   );
