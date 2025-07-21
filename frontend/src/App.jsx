@@ -3,6 +3,7 @@ import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard" 
 import ProtectedRoute from "./components/ProtectedRoute"
 import Editor from "./pages/Editor"
+import Viewer from "./pages/Viewer"
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/view/:id" element={<Viewer />} />
       </Routes>
     </Router>
   ) 

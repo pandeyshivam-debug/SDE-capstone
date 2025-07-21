@@ -1,6 +1,6 @@
 import { Save } from "lucide-react";
 
-function EditorToolbar({ title, setTitle, saving, onSave }) {
+function EditorToolbar({ title, setTitle, saving, onSave, extraButton }) {
   return (
     <div className="flex items-center justify-between p-4 shadow bg-white border-b">
       <div className="flex items-center space-x-3">
@@ -17,13 +17,20 @@ function EditorToolbar({ title, setTitle, saving, onSave }) {
           </span>
         )}
       </div>
-      <button
-        onClick={onSave}
-        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-      >
-        <Save size={16} />
-        <span>Save</span>
-      </button>
+
+      <div className="flex items-center space-x-2">
+        {/* Optional Extra Button (like Share) */}
+        {extraButton && extraButton}
+
+        {/* Save Button */}
+        <button
+          onClick={onSave}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+        >
+          <Save size={16} />
+          <span>Save</span>
+        </button>
+      </div>
     </div>
   );
 }
