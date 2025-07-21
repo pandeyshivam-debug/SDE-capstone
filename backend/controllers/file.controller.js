@@ -43,7 +43,9 @@ export async function getUserFiles(req, res) {
 
 export async function getFileById(req, res) {
     try {
-    const fileId = req.params.id;
+        const fileId = req.params.id;
+        const userId = req.user.uid;
+
         const docRef = filesCollection.doc(fileId);
         const doc = await docRef.get();
 
@@ -52,13 +54,30 @@ export async function getFileById(req, res) {
         }
 
         const file = doc.data();
-        if (file.ownerId !== req.user.uid) {
-            return res.status(403).json({ error: "Unauthorized" });
+
+        let hasAccess = file.ownerId === userId;
+        let accessLevel = 'owner';
+        if (!hasAccess) {
+        // Check collaboration permissions
+        const collabQuery = await db.collection('file_collaborators')
+            .where('fileId', '==', fileId)
+            .where('collaboratorId', '==', userId)
+            .get();
+        
+            if (!collabQuery.empty) {
+                hasAccess = true;
+                accessLevel = collabQuery.docs[0].data().permission;
+            }
+        } 
+        
+        if (!hasAccess) {
+          return res.status(403).json({ error: "Unauthorized" });
         }
 
         res.json({
             id: doc.id,
             ...file,
+            accessLevel,
             createdAt: file.createdAt?.toDate?.() || file.createdAt,
             updatedAt: file.updatedAt?.toDate?.() || file.updatedAt
         });
@@ -80,9 +99,6 @@ export async function updateFile(req, res) {
         }
 
         const file = doc.data();
-        if (file.ownerId !== req.user.uid) {
-            return res.status(403).json({ error: "Unauthorized" });
-        }
 
         await docRef.update({
         title: title || file.title,
@@ -109,9 +125,6 @@ export async function deleteFile(req, res) {
         }
 
         const file = doc.data();
-        if (file.ownerId !== req.user.uid) {
-            return res.status(403).json({ error: "Unauthorized" });
-        }
 
         await docRef.delete()
         res.status(204).send()
@@ -120,4 +133,130 @@ export async function deleteFile(req, res) {
         res.status(500).json({ error: "Failed to delete file" });
     }
     
+}
+
+export async function shareFile(req, res) {
+  try {
+    const fileId = req.params.id;
+    const { collaboratorEmail, permission = 'write' } = req.body;
+    const ownerId = req.user.uid;
+
+    // Verify file ownership
+    const docRef = filesCollection.doc(fileId);
+    const doc = await docRef.get();
+    
+    if (!doc.exists || doc.data().ownerId !== ownerId) {
+      return res.status(404).json({ error: "File not found or unauthorized" });
+    }
+
+    // Find collaborator by email (you'll need a users collection)
+    const usersQuery = await db.collection('users')
+      .where('email', '==', collaboratorEmail)
+      .get();
+    
+    if (usersQuery.empty) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const collaboratorId = usersQuery.docs[0].id;
+
+    // Add collaboration permission
+    await db.collection('file_collaborators').add({
+      fileId,
+      ownerId,
+      collaboratorId,
+      permission,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    res.json({ success: true, message: "File shared successfully" });
+  } catch (err) {
+    console.error("Error sharing file:", err);
+    res.status(500).json({ error: "Failed to share file" });
+  }
+}
+
+export async function getCollaborators(req, res) {
+  try {
+    const fileId = req.params.id;
+    const userId = req.user.uid;
+
+    // Verify user has access to this file
+    const hasAccess = await checkFileAccess(fileId, userId);
+    if (!hasAccess) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    // Get collaborators
+    const collabQuery = await db.collection('file_collaborators')
+      .where('fileId', '==', fileId)
+      .get();
+
+    const collaborators = collabQuery.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    res.json(collaborators);
+  } catch (err) {
+    console.error("Error getting collaborators:", err);
+    res.status(500).json({ error: "Failed to get collaborators" });
+  }
+}
+
+// Helper function to check file access
+async function checkFileAccess(fileId, userId) {
+  const docRef = filesCollection.doc(fileId);
+  const doc = await docRef.get();
+  
+  if (!doc.exists) return false;
+  
+  const file = doc.data();
+  if (file.ownerId === userId) return true;
+  
+  const collabQuery = await db.collection('file_collaborators')
+    .where('fileId', '==', fileId)
+    .where('collaboratorId', '==', userId)
+    .get();
+    
+  return !collabQuery.empty;
+}
+
+export async function removeCollaborator(req, res) {
+  try {
+    const fileId = req.params.id;
+    const collaboratorId = req.params.collaboratorId;
+    const ownerId = req.user.uid;
+
+    // Verify file ownership - only owner can remove collaborators
+    const docRef = filesCollection.doc(fileId);
+    const doc = await docRef.get();
+    
+    if (!doc.exists || doc.data().ownerId !== ownerId) {
+      return res.status(404).json({ error: "File not found or unauthorized" });
+    }
+
+    // Find and delete the collaboration record
+    const collabQuery = await db.collection('file_collaborators')
+      .where('fileId', '==', fileId)
+      .where('collaboratorId', '==', collaboratorId)
+      .get();
+
+    if (collabQuery.empty) {
+      return res.status(404).json({ error: "Collaborator not found" });
+    }
+
+    // Delete the collaboration record
+    const batch = db.batch();
+    collabQuery.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+    await batch.commit();
+
+    res.json({ success: true, message: "Collaborator access removed successfully" });
+  } catch (err) {
+    console.error("Error removing collaborator:", err);
+    res.status(500).json({ error: "Failed to remove collaborator access" });
+  }
 }

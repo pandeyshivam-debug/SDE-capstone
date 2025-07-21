@@ -5,7 +5,10 @@ import {
     getUserFiles,
     getFileById,
     updateFile,
-    deleteFile } from '../controllers/file.controller'
+    deleteFile,
+    shareFile,        // ✅ Add this
+    getCollaborators,
+    removeCollaborator } from '../controllers/file.controller'
 
 const router = express.Router()
 
@@ -16,5 +19,8 @@ router.get("/:id", getFileById)
 router.post("/", createFile)      
 router.put("/:id", updateFile);    
 router.delete("/:id", deleteFile)
+router.post("/:id/share", shareFile);           // Share file with another user
+router.get("/:id/collaborators", getCollaborators); // Get file collaborators
+router.delete("/:id/collaborators/:collaboratorId", removeCollaborator); // Remove access
 
 export default router
