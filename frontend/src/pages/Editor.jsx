@@ -9,6 +9,8 @@ import { useEditorOperations } from "../hooks/useEditorOperations";
 import { EditorToolbar, EditorCanvas } from "../components/editor";
 import Loader from "../components/Loader";
 import "prosemirror-view/style/prosemirror.css";
+import socket from "../utils/socket";
+
 
 function Editor() {
   const { id } = useParams();
@@ -36,6 +38,13 @@ function Editor() {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl focus:outline-none',
       },
+    },
+    onUpdate: ({ editor }) => {
+        const jsonContent = editor.getJSON();
+        socket.emit("docUpdate", {
+            fileId: id,
+            content: jsonContent
+        });
     }
   });
 
@@ -48,6 +57,7 @@ function Editor() {
     
     if (editor) {
       fetchFile(editor);
+      socket.emit("joinRoom", id);
     }
   }, [id, editor, navigate, fetchFile]);
 
